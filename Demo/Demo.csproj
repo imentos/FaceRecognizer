@@ -8,8 +8,8 @@
     <ProjectGuid>{CC813884-5D90-4044-9571-8FB7C54D9612}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MultiFaceRec</RootNamespace>
-    <AssemblyName>MultiFaceRec</AssemblyName>
+    <RootNamespace>Demo</RootNamespace>
+    <AssemblyName>Demo</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
