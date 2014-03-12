@@ -13,7 +13,9 @@ namespace FaceRecognizer
 {
     public class Detector
     {
-        private const int MATCH_THRESHOLD = 10;
+        public const int TRAINING = -2;
+        public const int MATCH_THRESHOLD = 10;
+
         private const int TRAIN_THRESHOLD = 10;
         private const int NOFACE_COUNT = 30; 
         
@@ -147,7 +149,7 @@ namespace FaceRecognizer
                     this.trainCount++;
                     this.log("training..." + trainCount);
                 }
-                this.match("", -2);
+                this.match("", TRAINING);
                 return;
             }
             else if (this.trainCount == TRAIN_THRESHOLD)

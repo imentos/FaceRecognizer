@@ -30,6 +30,7 @@ namespace MultiFaceRec
         private DateTime startTime;
         private Thread thread = null;
         private Dictionary<string, string> apps = new Dictionary<string, string>();
+        private string currentApp = null;
 
         public FrmPrincipal()
         {
@@ -95,7 +96,7 @@ namespace MultiFaceRec
         {
             this.Invoke((MethodInvoker)delegate
             {
-                if (count == -2)
+                if (count == Detector.TRAINING)
                 {
                     this.indicatorLabel.BackColor = Color.Gray;
                     this.loggerLabel.Text = "";
@@ -104,13 +105,13 @@ namespace MultiFaceRec
                 {
                     this.indicatorLabel.BackColor = Color.Red;
                 }
-                else if (count > 0 && count < 10)
+                else if (count > 0 && count < Detector.MATCH_THRESHOLD)
                 {
                     if (count == 1)
                     {
                         this.startTime = DateTime.Now;
                     }
-                    else if (count == 9)
+                    else if (count == Detector.MATCH_THRESHOLD - 1)
                     {
                         this.timeLabel.Text = DateTime.Now.Subtract(this.startTime).TotalSeconds.ToString();
                     }
@@ -119,16 +120,17 @@ namespace MultiFaceRec
                 else
                 {
                     this.indicatorLabel.BackColor = Color.Green;
-
                 }
 
+                // Update the final result
                 if (String.IsNullOrEmpty(match) == false)
                 {
-                    if (this.apps.ContainsKey(match))
+                    if (this.currentApp != this.apps[match])
                     {
-                        //MessageBox.Show(match + ":" + this.apps[match]);
-                    }
-
+                        this.currentApp = this.apps[match];
+                        System.Diagnostics.Process.Start(this.currentApp);
+                    }                    
+                    
                     match = String.Format("Hi, {0}", match);
                 }
                 this.nameLabel.Text = match;
@@ -141,11 +143,9 @@ namespace MultiFaceRec
             {
                 this.detector.startTraining(this.personToTrain.Text);
             }
-            this.trainButton.Enabled = false;
+            //this.trainButton.Enabled = false;
             this.trainButton.Text = "Training...";
             this.loggerLabel.Text = "";
-
-            updateApps();
         }
 
         void detector_trainComplete()
@@ -155,6 +155,8 @@ namespace MultiFaceRec
                 this.personToTrain.Text = "";
                 this.trainButton.Enabled = true;
                 this.trainButton.Text = "Train";
+
+                this.updateApps();
             });
         }
 
@@ -164,21 +166,12 @@ namespace MultiFaceRec
             DialogResult result = openFileDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
-               // this.appText.Text = openFileDialog.FileName;
                 if (String.IsNullOrEmpty(this.personToTrain.Text) == false)
                 {
                     this.apps[this.personToTrain.Text] = openFileDialog.FileName;
                 }
             }
         }
-        /*
-        private void appText_TextChanged(object sender, EventArgs e)
-        {
-            if (String.IsNullOrEmpty(this.personToTrain.Text) == false)
-            {
-                this.apps[this.personToTrain.Text] = this.appText.Text;
-            }
-        }*/
 
         private void personToTrain_TextChanged(object sender, EventArgs e)
         {
@@ -188,7 +181,6 @@ namespace MultiFaceRec
         private void enableInputs(bool enable)
         {
             this.trainButton.Enabled = enable;
-            //this.appText.Enabled = enable;
             this.appButton.Enabled = enable;
         }
     }
