@@ -68,8 +68,7 @@ namespace FaceRecognizer
             }
             catch (Exception e)
             {
-                //MessageBox.Show(e.ToString());
-                //MessageBox.Show("Nothing in binary database. Please train it first.", "Triained faces load", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                Console.WriteLine("Init fails:" + e.Message);
             }
 
             try
@@ -79,7 +78,7 @@ namespace FaceRecognizer
             }
             catch (Exception e)
             {
-                //MessageBox.Show("No Camera found", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                throw;                
             }
 
         }
@@ -131,7 +130,7 @@ namespace FaceRecognizer
             this.personToTrain = name;
         }
 
-        public void capture()//(object sender, EventArgs e)
+        public void capture()
         {
             this.log("capturing...");
             Image<Bgr, Byte> currentFrame = grabber.QueryFrame().Resize(320, 240, Emgu.CV.CvEnum.INTER.CV_INTER_CUBIC);
