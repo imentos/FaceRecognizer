@@ -17,36 +17,57 @@ using System.IO;
 using System.Diagnostics;
 using System.Timers;
 using System.Threading;
-
+using System.Linq;
 using FaceRecognizer;
 
 namespace MultiFaceRec
 {
     public partial class FrmPrincipal : Form
     {
+        private const string APP_FILE = "apps.txt";
+        
         private Detector detector = null;
         private DateTime startTime;
         private Thread thread = null;
+        private Dictionary<string, string> apps = new Dictionary<string, string>();
 
         public FrmPrincipal()
         {
-            InitializeComponent();
+            try
+            {
+                InitializeComponent();
 
-            detector = new Detector(Application.StartupPath);
-            detector.match += new Detector.MatchHandler(handleMatched);
-            detector.logger += new Detector.LogHandler(detector_logger);
-            detector.trainComplete += new Detector.TrainCompleteHandler(detector_trainComplete);
-            this.FormClosed += new FormClosedEventHandler(FrmPrincipal_FormClosed);            
+                enableInputs(false);
+                readApps();
 
-            //Application.Idle += new EventHandler(idle);
-            thread = new Thread(new ThreadStart(run));
-            thread.Start();
+                detector = new Detector(Application.StartupPath);
+                detector.match += new Detector.MatchHandler(handleMatched);
+                detector.logger += new Detector.LogHandler(detector_logger);
+                detector.trainComplete += new Detector.TrainCompleteHandler(detector_trainComplete);
+                this.FormClosed += new FormClosedEventHandler(FrmPrincipal_FormClosed);
+
+                thread = new Thread(new ThreadStart(run));
+                thread.Start();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
         }
 
-        //public void capture()//(object sender, EventArgs e)
-        void idle(object sender, EventArgs e)
+        private void readApps()
         {
-            this.detector.capture();
+            string[] lines = File.ReadAllLines(Application.StartupPath + "\\" + APP_FILE);
+            foreach (var row in lines)
+            {
+                this.apps.Add(row.Split('=')[0], row.Split('=')[1]);
+            }
+        }
+
+        private void updateApps()
+        {
+            File.Delete(APP_FILE);
+            File.AppendAllText(APP_FILE, string.Join("\n", this.apps.Select(x => x.Key + "=" + x.Value).ToArray()));
         }
 
         void run()
@@ -59,7 +80,6 @@ namespace MultiFaceRec
 
         void FrmPrincipal_FormClosed(object sender, FormClosedEventArgs e)
         {
-            //Application.Idle -= new EventHandler(detector.capture);
             this.thread.Abort();
         }
 
@@ -105,6 +125,8 @@ namespace MultiFaceRec
                 if (String.IsNullOrEmpty(match) == false)
                 {
                     match = String.Format("Hi, {0}", match);
+
+                    MessageBox.Show(match + ":" + this.apps[match]);
                 }
                 this.nameLabel.Text = match;
             });
@@ -112,20 +134,59 @@ namespace MultiFaceRec
 
         private void trainButton_Click(object sender, System.EventArgs e)
         {
-            this.detector.startTraining(this.personToTrainText.Text);
+            if (this.detector != null)
+            {
+                this.detector.startTraining(this.personToTrain.Text);
+            }
             this.trainButton.Enabled = false;
             this.trainButton.Text = "Training...";
             this.loggerLabel.Text = "";
+
+            updateApps();
         }
 
         void detector_trainComplete()
         {
             this.Invoke((MethodInvoker)delegate
             {
-                this.personToTrainText.Text = "";
+                this.personToTrain.Text = "";
                 this.trainButton.Enabled = true;
                 this.trainButton.Text = "Train";
             });
+        }
+
+        private void pickApp_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            DialogResult result = openFileDialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+               // this.appText.Text = openFileDialog.FileName;
+                if (String.IsNullOrEmpty(this.personToTrain.Text) == false)
+                {
+                    this.apps[this.personToTrain.Text] = openFileDialog.FileName;
+                }
+            }
+        }
+        /*
+        private void appText_TextChanged(object sender, EventArgs e)
+        {
+            if (String.IsNullOrEmpty(this.personToTrain.Text) == false)
+            {
+                this.apps[this.personToTrain.Text] = this.appText.Text;
+            }
+        }*/
+
+        private void personToTrain_TextChanged(object sender, EventArgs e)
+        {
+            enableInputs(String.IsNullOrEmpty(this.personToTrain.Text) == false);
+        }
+
+        private void enableInputs(bool enable)
+        {
+            this.trainButton.Enabled = enable;
+            //this.appText.Enabled = enable;
+            this.appButton.Enabled = enable;
         }
     }
 }

@@ -13,15 +13,17 @@ namespace FaceRecognizer
 {
     public class Detector
     {
+        private const int MATCH_THRESHOLD = 10;
+        private const int TRAIN_THRESHOLD = 10;
+        private const int NOFACE_COUNT = 30; 
+        
         private Capture grabber;
         private HaarCascade face;
         private List<Image<Gray, byte>> trainingImages = new List<Image<Gray, byte>>();
         private List<string> labels = new List<string>();
         private int trainCount = -1;
         private long frameCount = 0;
-        private const int MATCH_THRESHOLD = 10;
-        private const int TRAIN_THRESHOLD = 10;
-        private const int NOFACE_COUNT = 30;
+
         private Dictionary<string, int> matchPersons = new Dictionary<string, int>();
         private string bestMatchPerson;
 

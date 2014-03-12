@@ -29,17 +29,18 @@
         private void InitializeComponent()
         {
             this.trainButton = new System.Windows.Forms.Button();
-            this.personToTrainText = new System.Windows.Forms.TextBox();
+            this.personToTrain = new System.Windows.Forms.TextBox();
             this.nameLabel = new System.Windows.Forms.Label();
             this.loggerLabel = new System.Windows.Forms.Label();
             this.indicatorLabel = new System.Windows.Forms.Label();
             this.timeLabel = new System.Windows.Forms.Label();
+            this.appButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // trainButton
             // 
             this.trainButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.trainButton.Location = new System.Drawing.Point(444, 372);
+            this.trainButton.Location = new System.Drawing.Point(444, 424);
             this.trainButton.Name = "trainButton";
             this.trainButton.Size = new System.Drawing.Size(156, 29);
             this.trainButton.TabIndex = 3;
@@ -47,14 +48,15 @@
             this.trainButton.UseVisualStyleBackColor = true;
             this.trainButton.Click += new System.EventHandler(this.trainButton_Click);
             // 
-            // personToTrainText
+            // personToTrain
             // 
-            this.personToTrainText.AccessibleDescription = "Enter the name";
-            this.personToTrainText.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.personToTrainText.Location = new System.Drawing.Point(242, 372);
-            this.personToTrainText.Name = "personToTrainText";
-            this.personToTrainText.Size = new System.Drawing.Size(156, 29);
-            this.personToTrainText.TabIndex = 7;
+            this.personToTrain.AccessibleDescription = "Enter the name";
+            this.personToTrain.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.personToTrain.Location = new System.Drawing.Point(242, 375);
+            this.personToTrain.Name = "personToTrain";
+            this.personToTrain.Size = new System.Drawing.Size(156, 29);
+            this.personToTrain.TabIndex = 7;
+            this.personToTrain.TextChanged += new System.EventHandler(this.personToTrain_TextChanged);
             // 
             // nameLabel
             // 
@@ -93,15 +95,26 @@
             this.timeLabel.Size = new System.Drawing.Size(100, 23);
             this.timeLabel.TabIndex = 19;
             // 
+            // appButton
+            // 
+            this.appButton.Location = new System.Drawing.Point(444, 375);
+            this.appButton.Name = "appButton";
+            this.appButton.Size = new System.Drawing.Size(156, 29);
+            this.appButton.TabIndex = 20;
+            this.appButton.Text = "Pick a File";
+            this.appButton.UseVisualStyleBackColor = true;
+            this.appButton.Click += new System.EventHandler(this.pickApp_Click);
+            // 
             // FrmPrincipal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(837, 436);
+            this.ClientSize = new System.Drawing.Size(837, 495);
+            this.Controls.Add(this.appButton);
             this.Controls.Add(this.timeLabel);
             this.Controls.Add(this.indicatorLabel);
             this.Controls.Add(this.loggerLabel);
-            this.Controls.Add(this.personToTrainText);
+            this.Controls.Add(this.personToTrain);
             this.Controls.Add(this.trainButton);
             this.Controls.Add(this.nameLabel);
             this.Name = "FrmPrincipal";
@@ -114,11 +127,12 @@
         #endregion
 
         private System.Windows.Forms.Button trainButton;
-        private System.Windows.Forms.TextBox personToTrainText;
+        private System.Windows.Forms.TextBox personToTrain;
         private System.Windows.Forms.Label nameLabel;
         private System.Windows.Forms.Label loggerLabel;
         private System.Windows.Forms.Label indicatorLabel;
         private System.Windows.Forms.Label timeLabel;
+        private System.Windows.Forms.Button appButton;
     }
 }
 
