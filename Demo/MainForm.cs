@@ -124,9 +124,12 @@ namespace MultiFaceRec
 
                 if (String.IsNullOrEmpty(match) == false)
                 {
-                    match = String.Format("Hi, {0}", match);
+                    if (this.apps.ContainsKey(match))
+                    {
+                        //MessageBox.Show(match + ":" + this.apps[match]);
+                    }
 
-                    MessageBox.Show(match + ":" + this.apps[match]);
+                    match = String.Format("Hi, {0}", match);
                 }
                 this.nameLabel.Text = match;
             });
