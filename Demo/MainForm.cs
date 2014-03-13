@@ -19,11 +19,15 @@ using System.Timers;
 using System.Threading;
 using System.Linq;
 using FaceRecognizer;
+using System.Runtime.InteropServices;
 
 namespace MultiFaceRec
 {
     public partial class FrmPrincipal : Form
     {
+        [DllImport("User32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
         private const string APP_FILE = "apps.txt";
         
         private Detector detector = null;
@@ -31,6 +35,7 @@ namespace MultiFaceRec
         private Thread thread = null;
         private Dictionary<string, string> apps = new Dictionary<string, string>();
         private string currentApp = null;
+        private int currentProcessId = 99999;
 
         public FrmPrincipal()
         {
@@ -58,6 +63,10 @@ namespace MultiFaceRec
 
         private void readApps()
         {
+            if (File.Exists(Application.StartupPath + "\\" + APP_FILE) == false)
+            {
+                File.Create(Application.StartupPath + "\\" + APP_FILE);
+            }
             string[] lines = File.ReadAllLines(Application.StartupPath + "\\" + APP_FILE);
             foreach (var row in lines)
             {
@@ -125,14 +134,25 @@ namespace MultiFaceRec
                 // Update the final result
                 if (String.IsNullOrEmpty(match) == false)
                 {
-                    if (this.apps.ContainsKey(match))
+                    // check if different app                    
+                    if (this.apps.ContainsKey(match) && this.currentApp != this.apps[match])
                     {
-                        if (this.currentApp != this.apps[match] && Process.GetProcessesByName(this.currentApp).Length == 0)
-                        {
-                            this.currentApp = this.apps[match];
-                            System.Diagnostics.Process.Start(this.currentApp);
-                        }
+                        this.currentApp = this.apps[match];
+                        this.currentProcessId = -1;
                     }
+
+                    // check if the process exist
+                    if (this.appExist(currentProcessId) == false && String.IsNullOrEmpty(this.currentApp) == false)
+                    {
+                        Process app = Process.Start(this.currentApp);
+                        this.currentProcessId = app.Id;                        
+                    }
+                    else if (this.currentProcessId != -1)
+                    {
+                        Process process = Process.GetProcessById(this.currentProcessId);
+                        SetForegroundWindow(process.MainWindowHandle);
+                    }
+                    
                     match = String.Format("Hi, {0}", match);
                 }
                 this.nameLabel.Text = match;
@@ -145,7 +165,6 @@ namespace MultiFaceRec
             {
                 this.detector.startTraining(this.personToTrain.Text);
             }
-            
             this.trainButton.Enabled = false;
             this.trainButton.Text = "Training...";
             this.loggerLabel.Text = "";
@@ -175,6 +194,17 @@ namespace MultiFaceRec
 
                     this.updateApps();
                 }
+            }
+        }
+
+        private bool appExist(int id)
+        {
+            try
+            {
+                return Process.GetProcessById(currentProcessId).HasExited == false;
+            } 
+            catch (Exception e) {
+                return false;
             }
         }
 

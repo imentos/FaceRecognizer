@@ -101,7 +101,7 @@
             this.appButton.Name = "appButton";
             this.appButton.Size = new System.Drawing.Size(156, 29);
             this.appButton.TabIndex = 20;
-            this.appButton.Text = "Pick a File";
+            this.appButton.Text = "Favorite File";
             this.appButton.UseVisualStyleBackColor = true;
             this.appButton.Click += new System.EventHandler(this.pickApp_Click);
             // 
