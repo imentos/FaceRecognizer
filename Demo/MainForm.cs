@@ -35,7 +35,7 @@ namespace MultiFaceRec
         private Thread thread = null;
         private Dictionary<string, string> apps = new Dictionary<string, string>();
         private string currentApp = null;
-        private int currentProcessId = 99999;
+        private int currentProcessId = -1;
 
         public FrmPrincipal()
         {
