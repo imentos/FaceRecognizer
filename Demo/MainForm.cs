@@ -125,12 +125,14 @@ namespace MultiFaceRec
                 // Update the final result
                 if (String.IsNullOrEmpty(match) == false)
                 {
-                    if (this.currentApp != this.apps[match])
+                    if (this.apps.ContainsKey(match))
                     {
-                        this.currentApp = this.apps[match];
-                        System.Diagnostics.Process.Start(this.currentApp);
-                    }                    
-                    
+                        if (this.currentApp != this.apps[match] && Process.GetProcessesByName(this.currentApp).Length == 0)
+                        {
+                            this.currentApp = this.apps[match];
+                            System.Diagnostics.Process.Start(this.currentApp);
+                        }
+                    }
                     match = String.Format("Hi, {0}", match);
                 }
                 this.nameLabel.Text = match;
@@ -143,7 +145,8 @@ namespace MultiFaceRec
             {
                 this.detector.startTraining(this.personToTrain.Text);
             }
-            //this.trainButton.Enabled = false;
+            
+            this.trainButton.Enabled = false;
             this.trainButton.Text = "Training...";
             this.loggerLabel.Text = "";
         }
@@ -169,6 +172,8 @@ namespace MultiFaceRec
                 if (String.IsNullOrEmpty(this.personToTrain.Text) == false)
                 {
                     this.apps[this.personToTrain.Text] = openFileDialog.FileName;
+
+                    this.updateApps();
                 }
             }
         }
