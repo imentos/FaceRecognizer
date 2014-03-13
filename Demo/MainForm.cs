@@ -31,6 +31,7 @@ namespace MultiFaceRec
         private Thread thread = null;
         private Dictionary<string, string> apps = new Dictionary<string, string>();
         private string currentApp = null;
+        private int currentProcessId = -1;
 
         public FrmPrincipal()
         {
@@ -125,10 +126,11 @@ namespace MultiFaceRec
                 // Update the final result
                 if (String.IsNullOrEmpty(match) == false)
                 {
-                    if (this.currentApp != this.apps[match])
+                    if (this.currentApp != this.apps[match] && appExited(this.currentProcessId))
                     {
                         this.currentApp = this.apps[match];
-                        System.Diagnostics.Process.Start(this.currentApp);
+                        Process app = Process.Start(this.currentApp);
+                        this.currentProcessId = app.Id;
                     }                    
                     
                     match = String.Format("Hi, {0}", match);
@@ -143,7 +145,7 @@ namespace MultiFaceRec
             {
                 this.detector.startTraining(this.personToTrain.Text);
             }
-            //this.trainButton.Enabled = false;
+            this.trainButton.Enabled = false;
             this.trainButton.Text = "Training...";
             this.loggerLabel.Text = "";
         }
@@ -170,6 +172,17 @@ namespace MultiFaceRec
                 {
                     this.apps[this.personToTrain.Text] = openFileDialog.FileName;
                 }
+            }
+        }
+
+        private bool appExited(int id)
+        {
+            try
+            {
+                return Process.GetProcessById(currentProcessId).HasExited;
+            } 
+            catch (Exception e) {
+                return true;
             }
         }
 
