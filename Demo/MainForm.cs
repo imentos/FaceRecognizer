@@ -36,6 +36,7 @@ namespace MultiFaceRec
         private Dictionary<string, string> apps = new Dictionary<string, string>();
         private string currentApp = null;
         private int currentProcessId = -1;
+        private string currentMatch = null;
 
         public FrmPrincipal()
         {
@@ -88,6 +89,12 @@ namespace MultiFaceRec
             }
         }
 
+        private void log(string msg)
+        {
+            DateTime now = DateTime.Now;
+            Console.WriteLine(now.ToString() + ": " + msg);
+        }
+
         void FrmPrincipal_FormClosed(object sender, FormClosedEventArgs e)
         {
             this.thread.Abort();
@@ -134,6 +141,37 @@ namespace MultiFaceRec
                 // Update the final result
                 if (String.IsNullOrEmpty(match) == false)
                 {
+                    /*
+                    if (match != this.currentMatch)
+                    {
+                        this.currentMatch = match;
+
+                        if (this.apps.ContainsKey(match))
+                        {
+                            if (this.appExist(currentProcessId) == false)// && String.IsNullOrEmpty(this.currentApp) == false)
+                            {
+                                string a = Win32API.FindExecutable(this.apps[match]);
+                                Process.Start(a);
+                                Process app = Process.Start(this.apps[match]);
+                                if (app != null)
+                                {
+                                    this.currentProcessId = app.Id;
+                                }
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        if (this.currentProcessId != -1)
+                        {
+                            Process process = Process.GetProcessById(this.currentProcessId);
+                            SetForegroundWindow(process.MainWindowHandle);
+                        }
+                    }
+            */
+
+                        
                     // check if different app                    
                     if (this.apps.ContainsKey(match) && this.currentApp != this.apps[match])
                     {
@@ -143,15 +181,35 @@ namespace MultiFaceRec
 
                     // check if the process exist
                     if (this.appExist(currentProcessId) == false && String.IsNullOrEmpty(this.currentApp) == false)
-                    {
-                        Process app = Process.Start(this.currentApp);
-                        this.currentProcessId = app.Id;                        
+                    {                        
+                        string a = Win32API.FindExecutable(this.apps[match]);
+                        string b = Path.GetFileNameWithoutExtension(a);
+                        if (processIsRunning(b))
+                            
+                        {
+
+                            //if (app != null) this.currentProcessId = app.Id;
+                        }
+                        else
+                        {
+                            Process app = Process.Start(this.currentApp);
+                            /*
+                            string a = Win32API.FindExecutable(this.apps[match]);
+                            string b = Path.GetFileNameWithoutExtension(a);
+                            if (processIsRunning(b))
+                            {
+                                //int bg = 0;
+                                //bg = 10;
+                                //MessageBox.Show("VF");
+                            }*/
+                        }
                     }
                     else if (this.currentProcessId != -1)
                     {
                         Process process = Process.GetProcessById(this.currentProcessId);
                         SetForegroundWindow(process.MainWindowHandle);
                     }
+                    
                     
                     match = String.Format("Hi, {0}", match);
                 }
@@ -197,10 +255,16 @@ namespace MultiFaceRec
             }
         }
 
+        bool processIsRunning(string process)
+        {
+            return (System.Diagnostics.Process.GetProcessesByName(process).Length != 0);
+        }
+
         private bool appExist(int id)
         {
             try
             {
+
                 return Process.GetProcessById(currentProcessId).HasExited == false;
             } 
             catch (Exception e) {
