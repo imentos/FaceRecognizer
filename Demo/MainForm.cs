@@ -64,10 +64,16 @@ namespace MultiFaceRec
 
         private void readApps()
         {
-            if (File.Exists(Application.StartupPath + "\\" + APP_FILE) == false)
+            if (File.Exists(Application.StartupPath + "/" + APP_FILE) == false)
             {
-                File.Create(Application.StartupPath + "\\" + APP_FILE);
+                File.Create(Application.StartupPath + "/" + APP_FILE);                
             }
+
+            if (String.IsNullOrEmpty(File.ReadAllText(Application.StartupPath + "/" + APP_FILE)))
+            {
+                return;
+            }
+
             string[] lines = File.ReadAllLines(Application.StartupPath + "\\" + APP_FILE);
             foreach (var row in lines)
             {
@@ -152,7 +158,9 @@ namespace MultiFaceRec
                         string appName = Path.GetFileNameWithoutExtension(appPath);
                         if (processIsRunning(appName) == false)
                         {
-                            Process app = Process.Start(currentApp);
+                            ProcessStartInfo startInfo = new ProcessStartInfo(currentApp);
+                            startInfo.WindowStyle = ProcessWindowStyle.Maximized;
+                            Process app = Process.Start(startInfo);
                             if (app != null)
                             {
                                 this.currentProcessId = app.Id;

@@ -55,6 +55,16 @@ namespace FaceRecognizer
             this.face = new HaarCascade("haarcascade_frontalface_default.xml");
             try
             {
+                if (Directory.Exists(path + "/TrainedFaces") == false)
+                {
+                    Directory.CreateDirectory(path + "/TrainedFaces");
+                }
+
+                if (File.Exists(path + "/TrainedFaces/TrainedLabels.txt") == false)
+                {
+                    File.Create(path + "/TrainedFaces/TrainedLabels.txt");
+                }
+
                 //Load of previus trainned faces and labels for each image
                 string labelsinfo = File.ReadAllText(path + "/TrainedFaces/TrainedLabels.txt");
                 string[] labels = labelsinfo.Split('%');
