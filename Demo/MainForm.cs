@@ -34,7 +34,7 @@ namespace MultiFaceRec
         private DateTime startTime;
         private Thread thread = null;
         private Dictionary<string, string> apps = new Dictionary<string, string>();
-        private string currentApp = null;
+        //private string currentApp = null;
         private int currentProcessId = -1;
         private string currentMatch = null;
 
@@ -141,86 +141,38 @@ namespace MultiFaceRec
                 // Update the final result
                 if (String.IsNullOrEmpty(match) == false)
                 {
-                    /*
-                    if (match != this.currentMatch)
-                    {
-                        this.currentMatch = match;
-
-                        if (this.apps.ContainsKey(match))
-                        {
-                            if (this.appExist(currentProcessId) == false)// && String.IsNullOrEmpty(this.currentApp) == false)
-                            {
-                                string a = Win32API.FindExecutable(this.apps[match]);
-                                Process.Start(a);
-                                Process app = Process.Start(this.apps[match]);
-                                if (app != null)
-                                {
-                                    this.currentProcessId = app.Id;
-                                }
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        if (this.currentProcessId != -1)
-                        {
-                            Process process = Process.GetProcessById(this.currentProcessId);
-                            SetForegroundWindow(process.MainWindowHandle);
-                        }
-                    }
-            */
-
-                        
                     // check if different app                    
-                    if (this.apps.ContainsKey(match) && this.currentApp != this.apps[match])
+                    if (this.apps.ContainsKey(match))
                     {
-                        this.currentApp = this.apps[match];
+                        string currentApp = this.apps[match];
                         this.currentProcessId = -1;
-                    }
 
-                    // check if the process exist
-                    string a = Win32API.FindExecutable(this.apps[match]);
-                    string b = Path.GetFileNameWithoutExtension(a);
-                    if (processIsRunning(b) == false)
-                    {                        
-                        Process app = Process.Start(this.currentApp);
-                        if (app != null)
+                        // check if the process exist
+                        string appPath = Win32API.FindExecutable(this.apps[match]);
+                        string appName = Path.GetFileNameWithoutExtension(appPath);
+                        if (processIsRunning(appName) == false)
                         {
-                            this.currentProcessId = app.Id;
-                        }
-                    }
-                    else if (this.currentProcessId != -1)
-                    {
-                        Process process = Process.GetProcessById(this.currentProcessId);
-                        SetForegroundWindow(process.MainWindowHandle);
-                    }
-
-
-                    /*
-                    // check if the process exist
-                    if (this.appExist(currentProcessId) == false && String.IsNullOrEmpty(this.currentApp) == false)
-                    {                        
-                        string a = Win32API.FindExecutable(this.apps[match]);
-                        string b = Path.GetFileNameWithoutExtension(a);
-                        if (processIsRunning(b))                           
-                        {
-
-                            //if (app != null) this.currentProcessId = app.Id;
+                            Process app = Process.Start(currentApp);
+                            if (app != null)
+                            {
+                                this.currentProcessId = app.Id;
+                            }
                         }
                         else
                         {
-                            Process app = Process.Start(this.currentApp);
-
+                            if (this.currentProcessId != -1)
+                            {
+                                Process process = Process.GetProcessById(this.currentProcessId);
+                                SetForegroundWindow(process.MainWindowHandle);
+                            }
+                            else
+                            {
+                                Process process = Process.GetProcessesByName(appName)[0];
+                                SetForegroundWindow(process.MainWindowHandle);
+                            }
                         }
                     }
-                    else if (this.currentProcessId != -1)
-                    {
-                        Process process = Process.GetProcessById(this.currentProcessId);
-                        SetForegroundWindow(process.MainWindowHandle);
-                    }*/
-                    
-                    
+
                     match = String.Format("Hi, {0}", match);
                 }
                 this.nameLabel.Text = match;
