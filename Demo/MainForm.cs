@@ -28,15 +28,15 @@ namespace MultiFaceRec
         [DllImport("User32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
         private const string APP_FILE = "apps.txt";
         
         private Detector detector = null;
         private DateTime startTime;
         private Thread thread = null;
         private Dictionary<string, string> apps = new Dictionary<string, string>();
-        //private string currentApp = null;
-        private int currentProcessId = -1;
-        private string currentMatch = null;
 
         public FrmPrincipal()
         {
@@ -52,6 +52,7 @@ namespace MultiFaceRec
                 detector.logger += new Detector.LogHandler(detector_logger);
                 detector.trainComplete += new Detector.TrainCompleteHandler(detector_trainComplete);
                 this.FormClosed += new FormClosedEventHandler(FrmPrincipal_FormClosed);
+                this.MouseEnter += new EventHandler(FrmPrincipal_MouseEnter);
 
                 thread = new Thread(new ThreadStart(run));
                 thread.Start();
@@ -60,6 +61,11 @@ namespace MultiFaceRec
             {
                 MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
+        }
+
+        void FrmPrincipal_MouseEnter(object sender, EventArgs e)
+        {
+            this.BringToFront();
         }
 
         private void readApps()
@@ -147,11 +153,9 @@ namespace MultiFaceRec
                 // Update the final result
                 if (String.IsNullOrEmpty(match) == false)
                 {
-                    // check if different app                    
                     if (this.apps.ContainsKey(match))
                     {
                         string currentApp = this.apps[match];
-                        this.currentProcessId = -1;
 
                         // check if the process exist
                         string appPath = Win32API.FindExecutable(this.apps[match]);
@@ -161,23 +165,17 @@ namespace MultiFaceRec
                             ProcessStartInfo startInfo = new ProcessStartInfo(currentApp);
                             startInfo.WindowStyle = ProcessWindowStyle.Maximized;
                             Process app = Process.Start(startInfo);
-                            if (app != null)
-                            {
-                                this.currentProcessId = app.Id;
-                            }
                         }
                         else
                         {
-                            if (this.currentProcessId != -1)
+                            Process process = Process.GetProcessesByName(appName)[0];
+                            if (GetForegroundWindow() != this.Handle)
                             {
-                                Process process = Process.GetProcessById(this.currentProcessId);
                                 SetForegroundWindow(process.MainWindowHandle);
                             }
-                            else
-                            {
-                                Process process = Process.GetProcessesByName(appName)[0];
-                                SetForegroundWindow(process.MainWindowHandle);
-                            }
+                            process.WaitForInputIdle();
+
+                            SetForegroundWindow(this.Handle);
                         }
                     }
 
@@ -230,6 +228,7 @@ namespace MultiFaceRec
             return (System.Diagnostics.Process.GetProcessesByName(process).Length != 0);
         }
 
+        /*
         private bool appExist(int id)
         {
             try
@@ -241,6 +240,7 @@ namespace MultiFaceRec
                 return false;
             }
         }
+         * */
 
         private void personToTrain_TextChanged(object sender, EventArgs e)
         {

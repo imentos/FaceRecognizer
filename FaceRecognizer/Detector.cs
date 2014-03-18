@@ -17,7 +17,7 @@ namespace FaceRecognizer
         public const int MATCH_THRESHOLD = 10;
 
         private const int TRAIN_THRESHOLD = 10;
-        private const int NOFACE_COUNT = 30; 
+        private const int NOFACE_COUNT = 1; 
         
         private Capture grabber;
         private HaarCascade face;
