@@ -17,7 +17,9 @@ namespace FaceRecognizer
         public const int MATCH_THRESHOLD = 10;
 
         private const int TRAIN_THRESHOLD = 10;
-        private const int NOFACE_COUNT = 1; 
+        private const int NOFACE_COUNT = 1;
+
+        private const int CLEANUP_COUNT = 6000;
         
         private Capture grabber;
         private HaarCascade face;
@@ -42,6 +44,9 @@ namespace FaceRecognizer
         public event TrainCompleteHandler trainComplete;
         public delegate void TrainCompleteHandler();
 
+        public event CleaupHandler cleanup;
+        public delegate void CleaupHandler();
+        
         private void log(string msg)
         {
             DateTime now = DateTime.Now;
@@ -187,6 +192,12 @@ namespace FaceRecognizer
                     this.bestMatchPerson = "";
                     this.log("reset");
                     this.match("", 0);
+
+                    // clean up all apps when no use
+                    if (this.frameCount % CLEANUP_COUNT == 0)
+                    {
+                        this.cleanup();
+                    }
                 }
             }
             else

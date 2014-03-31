@@ -51,6 +51,8 @@ namespace MultiFaceRec
                 detector.match += new Detector.MatchHandler(handleMatched);
                 detector.logger += new Detector.LogHandler(detector_logger);
                 detector.trainComplete += new Detector.TrainCompleteHandler(detector_trainComplete);
+                detector.cleanup += new Detector.CleaupHandler(detector_cleanup);
+
                 this.FormClosed += new FormClosedEventHandler(FrmPrincipal_FormClosed);
                 this.MouseEnter += new EventHandler(FrmPrincipal_MouseEnter);
 
@@ -60,6 +62,22 @@ namespace MultiFaceRec
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
+
+        void detector_cleanup()
+        {
+            foreach (KeyValuePair<string, string> iter in this.apps)
+            {
+                string currentApp = this.apps[iter.Key];
+
+                // check if the process exist
+                string appPath = Win32API.FindExecutable(this.apps[iter.Key]);
+                string appName = Path.GetFileNameWithoutExtension(appPath);
+                foreach (Process process in Process.GetProcessesByName(appName))
+                {
+                    process.Kill();
+                }
             }
         }
 
@@ -173,7 +191,7 @@ namespace MultiFaceRec
                             {
                                 SetForegroundWindow(process.MainWindowHandle);
                             }
-                            process.WaitForInputIdle();
+                            //process.WaitForInputIdle();
 
                             SetForegroundWindow(this.Handle);
                         }
