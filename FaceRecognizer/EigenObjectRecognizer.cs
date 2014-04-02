@@ -257,6 +257,11 @@ namespace FaceRecognizer
               return (float)CvInvoke.cvNorm(eigenValue.Ptr, trainEigenValue.Ptr, Emgu.CV.CvEnum.NORM_TYPE.CV_L2, IntPtr.Zero);
       }
 
+      private void log(string x)
+      {
+          Console.WriteLine(x);
+      }
+
       private void findMost(Image<Gray, Byte> testImage, int trainImageCount, out int index, out float eigenDistance, out String label)
       {
           // Pick the first train image for each person.
@@ -270,9 +275,12 @@ namespace FaceRecognizer
           }
 
           // Divide the group and find the shortest eigen distance.
+          int col = 0;
           IEnumerable<KeyValuePair<int, float>> sortedDict = null;
           while (persons.Count / DIVID > 0)
           {
+              log("col: " + col);
+
               sortedDict = (from entry in persons orderby entry.Value ascending select entry).Take(persons.Count / DIVID);
 
               persons = new Dictionary<int, float>();
@@ -280,8 +288,13 @@ namespace FaceRecognizer
               {
                   int i = iter.Key + 1;
                   float dist = GetEigenDistance(testImage, _eigenValues[i]);
+
+                  log("index (score):" + i + ", " + dist);
+
                   persons[i] = dist;
               }
+
+              col++;
           }
 
           index = persons.First().Key;
