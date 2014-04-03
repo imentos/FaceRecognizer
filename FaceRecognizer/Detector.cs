@@ -28,7 +28,7 @@ namespace FaceRecognizer
         private int trainCount = -1;
         private long frameCount = 0;
 
-        private Dictionary<string, int> matchPersons = new Dictionary<string, int>();
+        private Dictionary<string, int> matchPersons = new Dictionary<string, int>(); // key: person name, value: match count
         private string bestMatchPerson;
 
         private string appPath;
@@ -217,7 +217,7 @@ namespace FaceRecognizer
 
                     if (trainingImages.ToArray().Length != 0)
                     {
-                        string name = recognizer.Recognize(result, TRAIN_THRESHOLD);
+                        string name = recognizer.Recognize(result, testCount, TRAIN_THRESHOLD);
                         this.log("found:" + name + ", maxCount:" + testCount);
 
                         if (String.IsNullOrEmpty(name) == false)

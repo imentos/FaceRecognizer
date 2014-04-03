@@ -262,14 +262,14 @@ namespace FaceRecognizer
           Console.WriteLine(x);
       }
 
-      private void findMost(Image<Gray, Byte> testImage, int trainImageCount, out int index, out float eigenDistance, out String label)
+      private void findMost(Image<Gray, Byte> testImage, int trainStartIndex, int trainImageCount, out int index, out float eigenDistance, out String label)
       {
           // Pick the first train image for each person.
           Dictionary<int, float> persons = new Dictionary<int, float>();
           int personCount = this._eigenValues.Length / trainImageCount;
           for (int i = 0; i < personCount; i++)
           {
-              int key = i * trainImageCount;
+              int key = trainStartIndex + i * trainImageCount;
               float dist = GetEigenDistance(testImage, _eigenValues[key]);
               persons[key] = dist;
           }
@@ -280,7 +280,7 @@ namespace FaceRecognizer
           while (persons.Count / DIVID > 0)
           {
               log("col: " + col);
-
+              // sort the persons based on its score and take top half.
               sortedDict = (from entry in persons orderby entry.Value ascending select entry).Take(persons.Count / DIVID);
 
               persons = new Dictionary<int, float>();
@@ -288,9 +288,7 @@ namespace FaceRecognizer
               {
                   int i = iter.Key + 1;
                   float dist = GetEigenDistance(testImage, _eigenValues[i]);
-
                   log("index (score):" + i + ", " + dist);
-
                   persons[i] = dist;
               }
 
@@ -310,13 +308,13 @@ namespace FaceRecognizer
       /// String.Empty, if not recognized;
       /// Label of the corresponding image, otherwise
       /// </returns>
-      public String Recognize(Image<Gray, Byte> image, int trainCount)
+      public String Recognize(Image<Gray, Byte> image, int trainStartIndex, int trainCount)
       {
          int index;
          float eigenDistance;
          String label;
          //FindMostSimilarObject(image, out index, out eigenDistance, out label);
-         findMost(image, trainCount, out index, out eigenDistance, out label);
+         findMost(image, trainStartIndex, trainCount, out index, out eigenDistance, out label);
 
          return (_eigenDistanceThreshold <= 0 || eigenDistance < _eigenDistanceThreshold )  ? _labels[index] : String.Empty;
       }
