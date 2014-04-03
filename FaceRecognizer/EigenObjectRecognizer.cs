@@ -4,6 +4,7 @@ using Emgu.CV.Structure;
 using Emgu.CV;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace FaceRecognizer
 {
@@ -18,6 +19,7 @@ namespace FaceRecognizer
       private Matrix<float>[] _eigenValues;
       private string[] _labels;
       private double _eigenDistanceThreshold;
+      private string appPath;
 
       private const int DIVID = 2;
 
@@ -81,8 +83,8 @@ namespace FaceRecognizer
       /// </summary>
       /// <param name="images">The images used for training, each of them should be the same size. It's recommended the images are histogram normalized</param>
       /// <param name="termCrit">The criteria for recognizer training</param>
-      public EigenObjectRecognizer(Image<Gray, Byte>[] images, ref MCvTermCriteria termCrit)
-         : this(images, GenerateLabels(images.Length), ref termCrit)
+      public EigenObjectRecognizer(string path, Image<Gray, Byte>[] images, ref MCvTermCriteria termCrit)
+         : this(path, images, GenerateLabels(images.Length), ref termCrit)
       {
       }
 
@@ -100,8 +102,8 @@ namespace FaceRecognizer
       /// <param name="images">The images used for training, each of them should be the same size. It's recommended the images are histogram normalized</param>
       /// <param name="labels">The labels corresponding to the images</param>
       /// <param name="termCrit">The criteria for recognizer training</param>
-      public EigenObjectRecognizer(Image<Gray, Byte>[] images, String[] labels, ref MCvTermCriteria termCrit)
-         : this(images, labels, 0, ref termCrit)
+      public EigenObjectRecognizer(string path, Image<Gray, Byte>[] images, String[] labels, ref MCvTermCriteria termCrit)
+         : this(path, images, labels, 0, ref termCrit)
       {
       }
 
@@ -116,9 +118,14 @@ namespace FaceRecognizer
       /// If the threshold is &lt; 0, the recognizer will always treated the examined image as one of the known object. 
       /// </param>
       /// <param name="termCrit">The criteria for recognizer training</param>
-      public EigenObjectRecognizer(Image<Gray, Byte>[] images, String[] labels, double eigenDistanceThreshold, ref MCvTermCriteria termCrit)
+      public EigenObjectRecognizer(string path, Image<Gray, Byte>[] images, String[] labels, double eigenDistanceThreshold, ref MCvTermCriteria termCrit)
       {
-         Debug.Assert(images.Length == labels.Length, "The number of images should equals the number of labels");
+          this.appPath = path;
+          if (File.Exists(path + "/log.txt") == false)
+          {
+              File.Create(path + "/log.txt");
+          }
+          Debug.Assert(images.Length == labels.Length, "The number of images should equals the number of labels");
          Debug.Assert(eigenDistanceThreshold >= 0.0, "Eigen-distance threshold should always >= 0.0");
 
          CalcEigenObjects(images, ref termCrit, out _eigenImages, out _avgImage);
@@ -257,9 +264,10 @@ namespace FaceRecognizer
               return (float)CvInvoke.cvNorm(eigenValue.Ptr, trainEigenValue.Ptr, Emgu.CV.CvEnum.NORM_TYPE.CV_L2, IntPtr.Zero);
       }
 
-      private void log(string x)
+      private void log(string message)
       {
-          Console.WriteLine(x);
+          File.AppendAllText(this.appPath + "/log.txt", message + "\n");
+          Console.WriteLine(message);
       }
 
       private void findMost(Image<Gray, Byte> testImage, int trainImageCount, out int index, out float eigenDistance, out String label)
@@ -289,7 +297,7 @@ namespace FaceRecognizer
                   int i = iter.Key + 1;
                   float dist = GetEigenDistance(testImage, _eigenValues[i]);
 
-                  log("index (score):" + i + ", " + dist);
+                  log("name, image (score):" + this._labels[i] + ", faces" + i + ", " + dist);
 
                   persons[i] = dist;
               }

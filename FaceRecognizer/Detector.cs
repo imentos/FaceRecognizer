@@ -83,7 +83,7 @@ namespace FaceRecognizer
                 }
 
                 MCvTermCriteria termCrit = new MCvTermCriteria(10, 0.001);
-                recognizer = new EigenObjectRecognizer(trainingImages.ToArray(), this.labels.ToArray(), 5000, ref termCrit);
+                recognizer = new EigenObjectRecognizer(path, trainingImages.ToArray(), this.labels.ToArray(), 5000, ref termCrit);
             }
             catch (Exception e)
             {
@@ -132,7 +132,7 @@ namespace FaceRecognizer
                 log(name + "´s face detected and added");
 
                 MCvTermCriteria termCrit = new MCvTermCriteria(10, 0.001);
-                recognizer = new EigenObjectRecognizer(trainingImages.ToArray(), this.labels.ToArray(), 5000, ref termCrit);
+                recognizer = new EigenObjectRecognizer(this.appPath, trainingImages.ToArray(), this.labels.ToArray(), 5000, ref termCrit);
 
                 return true;
             }
