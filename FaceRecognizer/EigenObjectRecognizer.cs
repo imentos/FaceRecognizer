@@ -272,12 +272,15 @@ namespace FaceRecognizer
 
       private void findMost(Image<Gray, Byte> testImage, int trainStartIndex, int trainImageCount, out int index, out float eigenDistance, out String label)
       {
+          this.log("========================");
+          this.log("test: " + (trainStartIndex + 1));
           // Pick the first train image for each person.
           Dictionary<int, float> persons = new Dictionary<int, float>();
-          int personCount = this._eigenValues.Length / trainImageCount;
+          int totalImageCount = this._eigenValues.Length;
+          int personCount = totalImageCount / trainImageCount;
           for (int i = 0; i < personCount; i++)
           {
-              int key = trainStartIndex + i * trainImageCount;
+              int key = Math.Min(trainStartIndex, trainImageCount - 1) + i * trainImageCount;
               float dist = GetEigenDistance(testImage, _eigenValues[key]);
               persons[key] = dist;
           }
@@ -294,7 +297,8 @@ namespace FaceRecognizer
               persons = new Dictionary<int, float>();
               foreach (KeyValuePair<int, float> iter in sortedDict)
               {
-                  int i = iter.Key + 1;
+                  // use the next colum
+                  int i = (iter.Key + 1) % totalImageCount;
                   float dist = GetEigenDistance(testImage, _eigenValues[i]);
                   log("name, image (score):" + this._labels[i] + ", faces" + i + ", " + dist);
                   persons[i] = dist;
