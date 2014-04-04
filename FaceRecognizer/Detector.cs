@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using Emgu.CV;
 using Emgu.CV.Structure;
-using Emgu.CV.CvEnum;
 using System.IO;
-using System.Diagnostics;
-using System.Timers;
 using System.Linq;
 
 namespace FaceRecognizer
@@ -20,7 +17,7 @@ namespace FaceRecognizer
         private const int NOFACE_COUNT = 1;
 
         private const int CLEANUP_COUNT = 6000;
-        
+
         private Capture grabber;
         private HaarCascade face;
         private List<Image<Gray, byte>> trainingImages = new List<Image<Gray, byte>>();
@@ -46,7 +43,7 @@ namespace FaceRecognizer
 
         public event CleaupHandler cleanup;
         public delegate void CleaupHandler();
-        
+
         private void log(string msg)
         {
             DateTime now = DateTime.Now;
@@ -97,7 +94,7 @@ namespace FaceRecognizer
             }
             catch (Exception e)
             {
-                throw;                
+                throw;
             }
 
         }
@@ -220,50 +217,47 @@ namespace FaceRecognizer
                         string name = recognizer.Recognize(result, testCount, TRAIN_THRESHOLD);
                         this.log("found:" + name + ", maxCount:" + testCount);
 
-                        if (String.IsNullOrEmpty(name) == false)
+                        // Find the best match until threshold
+                        if (testCount < MATCH_THRESHOLD)
                         {
-                            // Find the best match until threshold
-                            if (testCount < MATCH_THRESHOLD)
+                            if (this.matchPersons.ContainsKey(name))
                             {
-                                if (this.matchPersons.ContainsKey(name))
-                                {
-                                    this.matchPersons[name]++;
-                                }
-                                else
-                                {
-                                    this.matchPersons[name] = 1;
-                                }
-
-                                this.match("", testCount);
+                                this.matchPersons[name]++;
                             }
                             else
                             {
-                                IEnumerable<KeyValuePair<string, int>> sortedDict = from entry in matchPersons orderby entry.Value descending select entry;
-                                string matchPersonsOut = "";
-                                string bestMatch = "";
-                                int i = 0;
-                                foreach (KeyValuePair<string, int> iter in sortedDict)
+                                this.matchPersons[name] = 1;
+                            }
+
+                            this.match("", testCount);
+                        }
+                        else
+                        {
+                            IEnumerable<KeyValuePair<string, int>> sortedDict = from entry in matchPersons orderby entry.Value descending select entry;
+                            string matchPersonsOut = "";
+                            string bestMatch = "";
+                            int i = 0;
+                            foreach (KeyValuePair<string, int> iter in sortedDict)
+                            {
+                                matchPersonsOut += iter.Key + ": " + iter.Value + "\n";
+                                if (i++ == 0)
                                 {
-                                    matchPersonsOut += iter.Key + ": " + iter.Value + "\n";
-                                    if (i++ == 0)
+                                    if (iter.Value >= 7)
                                     {
-                                        if (iter.Value >= 7)
-                                        {
-                                            bestMatch = iter.Key;
-                                            this.bestMatchPerson = bestMatch;
-                                        }
-                                        else
-                                        {
-                                            this.matchPersons.Clear();
-                                            this.bestMatchPerson = "";
-                                            this.log("cannot find the person over 7");
-                                        }
+                                        bestMatch = iter.Key;
+                                        this.bestMatchPerson = bestMatch;
+                                    }
+                                    else
+                                    {
+                                        this.matchPersons.Clear();
+                                        this.bestMatchPerson = "";
+                                        this.log("cannot find the person over 7");
                                     }
                                 }
-                                this.match(bestMatch, testCount);
-
-                                this.logger(matchPersonsOut);
                             }
+                            this.match(bestMatch, testCount);
+
+                            this.logger(matchPersonsOut);
                         }
                     }
 

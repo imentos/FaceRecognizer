@@ -270,7 +270,7 @@ namespace FaceRecognizer
           Console.WriteLine(message);
       }
 
-      private void findMost(Image<Gray, Byte> testImage, int trainStartIndex, int trainImageCount, out int index, out float eigenDistance, out String label)
+      private void findMost(Image<Gray, Byte> testImage, int trainStartIndex, int trainImageCount, out int index, out float eigenDistance)
       {
           this.log("========================");
           this.log("test: " + (trainStartIndex + 1));
@@ -309,7 +309,6 @@ namespace FaceRecognizer
 
           index = persons.First().Key;
           eigenDistance = persons.First().Value;
-          label = Labels[index];
       }
 
       /// <summary>
@@ -324,11 +323,11 @@ namespace FaceRecognizer
       {
          int index;
          float eigenDistance;
-         String label;
+         //String label;
          //FindMostSimilarObject(image, out index, out eigenDistance, out label);
-         findMost(image, trainStartIndex, trainCount, out index, out eigenDistance, out label);
+         findMost(image, trainStartIndex, trainCount, out index, out eigenDistance);
 
-         return (_eigenDistanceThreshold <= 0 || eigenDistance < _eigenDistanceThreshold )  ? _labels[index] : String.Empty;
+         return _labels[index];
       }
    }
 }
