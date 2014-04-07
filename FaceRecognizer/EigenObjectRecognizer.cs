@@ -272,21 +272,26 @@ namespace FaceRecognizer
 
       private void findMost(Image<Gray, Byte> testImage, int trainStartIndex, int trainImageCount, out int index, out float eigenDistance)
       {
+          int col = 0;
           this.log("========================");
-          this.log("test: " + (trainStartIndex + 1));
+          this.log("test: " + trainStartIndex);
+          log("col: " + col);
           // Pick the first train image for each person.
+          // key: start 0
           Dictionary<int, float> persons = new Dictionary<int, float>();
           int totalImageCount = this._eigenValues.Length;
           int personCount = totalImageCount / trainImageCount;
           for (int i = 0; i < personCount; i++)
           {
-              int key = Math.Min(trainStartIndex, trainImageCount - 1) + i * trainImageCount;
+              int key = (trainStartIndex + i * trainImageCount) % totalImageCount;
               float dist = GetEigenDistance(testImage, _eigenValues[key]);
               persons[key] = dist;
+
+              log("index, name, image (score):" + key + ", " + this._labels[key] + ", faces" + (key + 1) + ", " + dist);
           }
 
+          col++;
           // Divide the group and find the shortest eigen distance.
-          int col = 0;
           IEnumerable<KeyValuePair<int, float>> sortedDict = null;
           while (persons.Count / DIVID > 0)
           {
@@ -298,9 +303,10 @@ namespace FaceRecognizer
               foreach (KeyValuePair<int, float> iter in sortedDict)
               {
                   // use the next colum
-                  int i = (iter.Key + 1) % totalImageCount;
+                  int personIndex = iter.Key / 10;
+                  int i = personIndex * 10 + (iter.Key + 1) % 10;
                   float dist = GetEigenDistance(testImage, _eigenValues[i]);
-                  log("name, image (score):" + this._labels[i] + ", faces" + i + ", " + dist);
+                  log("index, name, image (score):" + i + ", " + this._labels[i] + ", faces" + (i + 1) + ", " + dist);
                   persons[i] = dist;
               }
 
