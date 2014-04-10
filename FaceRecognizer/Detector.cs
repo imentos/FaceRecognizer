@@ -24,6 +24,7 @@ namespace FaceRecognizer
         private List<string> labels = new List<string>();
         private int trainCount = -1;
         private long frameCount = 0;
+        private int maxIter = 0;
 
         private Dictionary<string, int> matchPersons = new Dictionary<string, int>(); // key: person name, value: match count
         private string bestMatchPerson;
@@ -50,9 +51,10 @@ namespace FaceRecognizer
             Console.WriteLine(now.ToString() + ": " + msg);
         }
 
-        public Detector(string path)
+        public Detector(string path, int maxIter)
         {
             this.appPath = path;
+            this.maxIter = maxIter;
 
             this.face = new HaarCascade("haarcascade_frontalface_default.xml");
             try
@@ -79,7 +81,7 @@ namespace FaceRecognizer
                     this.labels.Add(labels[tf]);
                 }
 
-                MCvTermCriteria termCrit = new MCvTermCriteria(10, 0.001);
+                MCvTermCriteria termCrit = new MCvTermCriteria(this.maxIter, 0.001);
                 recognizer = new EigenObjectRecognizer(path, trainingImages.ToArray(), this.labels.ToArray(), 5000, ref termCrit);
             }
             catch (Exception e)
@@ -96,24 +98,29 @@ namespace FaceRecognizer
             {
                 throw;
             }
-
         }
 
-        public void removePerson(string name)
+        public bool removePerson(string name)
         {
             if (File.Exists(this.appPath + "/TrainedFaces/TrainedLabels.txt"))
             {
-                for (int i = 0; i < this.labels.Count; i++)
-                {
-                    if (this.labels[i].Equals(name))
-                    {
-                        this.trainingImages.RemoveAt(i);
-                    }
-                }               
+                int index = this.labels.FindIndex(item => item == name);
+                if (index == -1)
+                {                    
+                    return false;
+                }
+
+                this.trainingImages.RemoveRange(index, 10);
                 this.labels.RemoveAll(item => item == name);
 
+                MCvTermCriteria termCrit = new MCvTermCriteria(this.maxIter, 0.001);
+                recognizer = new EigenObjectRecognizer(this.appPath, trainingImages.ToArray(), this.labels.ToArray(), 5000, ref termCrit);
+
                 this.WriteIndexFile(this.trainingImages, this.labels);
+
+                return true;
             }
+            return false;
         }
 
 
@@ -134,10 +141,6 @@ namespace FaceRecognizer
 
                 WriteIndexFile(trainingImages, labels);
                 log(name + "´s face detected and added");
-
-                MCvTermCriteria termCrit = new MCvTermCriteria(10, 0.001);
-                recognizer = new EigenObjectRecognizer(this.appPath, trainingImages.ToArray(), this.labels.ToArray(), 5000, ref termCrit);
-
                 return true;
             }
             catch (Exception e)
@@ -187,6 +190,9 @@ namespace FaceRecognizer
             }
             else if (this.trainCount == TRAIN_THRESHOLD)
             {
+                MCvTermCriteria termCrit = new MCvTermCriteria(50, 0.001);
+                recognizer = new EigenObjectRecognizer(this.appPath, trainingImages.ToArray(), this.labels.ToArray(), 5000, ref termCrit);
+
                 this.trainComplete();
                 this.trainCount = -1;
             }

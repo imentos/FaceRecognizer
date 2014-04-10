@@ -20,6 +20,7 @@ using System.Threading;
 using System.Linq;
 using FaceRecognizer;
 using System.Runtime.InteropServices;
+using System.Configuration;
 
 namespace MultiFaceRec
 {
@@ -47,7 +48,9 @@ namespace MultiFaceRec
                 enableInputs(false);
                 readApps();
 
-                detector = new Detector(Application.StartupPath);
+                int maxIter = Convert.ToInt16(ConfigurationSettings.AppSettings["MAX_ITER"]);
+
+                detector = new Detector(Application.StartupPath, maxIter);
                 detector.match += new Detector.MatchHandler(handleMatched);
                 detector.logger += new Detector.LogHandler(detector_logger);
                 detector.trainComplete += new Detector.TrainCompleteHandler(detector_trainComplete);
@@ -246,20 +249,6 @@ namespace MultiFaceRec
             return (System.Diagnostics.Process.GetProcessesByName(process).Length != 0);
         }
 
-        /*
-        private bool appExist(int id)
-        {
-            try
-            {
-
-                return Process.GetProcessById(currentProcessId).HasExited == false;
-            } 
-            catch (Exception e) {
-                return false;
-            }
-        }
-         * */
-
         private void personToTrain_TextChanged(object sender, EventArgs e)
         {
             enableInputs(String.IsNullOrEmpty(this.personToTrain.Text) == false);
@@ -269,13 +258,17 @@ namespace MultiFaceRec
         {
             this.trainButton.Enabled = enable;
             this.appButton.Enabled = enable;
+            this.removeButton.Enabled = enable;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             if (String.IsNullOrEmpty(this.personToTrain.Text) == false)
             {
-                this.detector.removePerson(this.personToTrain.Text);
+                if (this.detector.removePerson(this.personToTrain.Text) == false)
+                {
+                    MessageBox.Show("Failed to remove person", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                }
             }
 
         }
