@@ -99,6 +99,24 @@ namespace FaceRecognizer
 
         }
 
+        public void removePerson(string name)
+        {
+            if (File.Exists(this.appPath + "/TrainedFaces/TrainedLabels.txt"))
+            {
+                for (int i = 0; i < this.labels.Count; i++)
+                {
+                    if (this.labels[i].Equals(name))
+                    {
+                        this.trainingImages.RemoveAt(i);
+                    }
+                }               
+                this.labels.RemoveAll(item => item == name);
+
+                this.WriteIndexFile(this.trainingImages, this.labels);
+            }
+        }
+
+
         private bool train(Image<Gray, byte> gray, string name)
         {
             Image<Gray, byte> trainedFace = null;
@@ -114,18 +132,7 @@ namespace FaceRecognizer
                 trainingImages.Add(trainedFace);
                 labels.Add(name);
 
-                //Write the number of triained faces in a file text for further load
-                File.WriteAllText(this.appPath + "/TrainedFaces/TrainedLabels.txt", trainingImages.ToArray().Length.ToString() + "%");
-
-                //Write the labels of triained faces in a file text for further load
-                int totalImages = trainingImages.ToArray().Length + 1;
-                for (int i = 1; i < totalImages; i++)
-                {
-                    trainingImages.ToArray()[i - 1].Save(this.appPath + "/TrainedFaces/face" + i + ".bmp");
-                    File.AppendAllText(this.appPath + "/TrainedFaces/TrainedLabels.txt", labels.ToArray()[i - 1] + "%");
-                }
-                //Console.WriteLine(textBox1.Text + "´s face detected and added");
-                //this.logger(name + "´s face detected and added");
+                WriteIndexFile(trainingImages, labels);
                 log(name + "´s face detected and added");
 
                 MCvTermCriteria termCrit = new MCvTermCriteria(10, 0.001);
@@ -137,6 +144,20 @@ namespace FaceRecognizer
             {
                 Console.WriteLine("Training Fail:" + e.Message);
                 return false;
+            }
+        }
+
+        private void WriteIndexFile(List<Image<Gray, byte>> trainingImages, List<string> labels)
+        {
+            //Write the number of triained faces in a file text for further load
+            File.WriteAllText(this.appPath + "/TrainedFaces/TrainedLabels.txt", trainingImages.ToArray().Length.ToString() + "%");
+
+            //Write the labels of triained faces in a file text for further load
+            int totalImages = trainingImages.ToArray().Length + 1;
+            for (int i = 1; i < totalImages; i++)
+            {
+                trainingImages.ToArray()[i - 1].Save(this.appPath + "/TrainedFaces/face" + i + ".bmp");
+                File.AppendAllText(this.appPath + "/TrainedFaces/TrainedLabels.txt", labels.ToArray()[i - 1] + "%");
             }
         }
 

@@ -270,5 +270,14 @@ namespace MultiFaceRec
             this.trainButton.Enabled = enable;
             this.appButton.Enabled = enable;
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (String.IsNullOrEmpty(this.personToTrain.Text) == false)
+            {
+                this.detector.removePerson(this.personToTrain.Text);
+            }
+
+        }
     }
 }
