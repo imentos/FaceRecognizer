@@ -1,0 +1,3 @@
+System.Collections.Generic.Dictionary`2[System.String,System.String]Ray=c:\regan1.jpg;Ray1=c:\regan1.jpg;asd=C:\Users\i818292\Documents\movies.txtRay=c:\regan1.jpg
+Ray1=c:\regan1.jpg
+asdasd=C:\Users\i818292\Documents\movies.txt

@@ -1,0 +1,8 @@
+C:\FaceRecognizer\FaceRecognizer\bin\Release\FaceRecognizer.dll
+C:\FaceRecognizer\FaceRecognizer\bin\Release\FaceRecognizer.pdb
+C:\FaceRecognizer\FaceRecognizer\bin\Release\Emgu.CV.dll
+C:\FaceRecognizer\FaceRecognizer\bin\Release\Emgu.CV.UI.dll
+C:\FaceRecognizer\FaceRecognizer\bin\Release\Emgu.Util.dll
+C:\FaceRecognizer\FaceRecognizer\obj\Release\FaceRecognizer.dll
+C:\FaceRecognizer\FaceRecognizer\obj\Release\FaceRecognizer.pdb
+C:\FaceRecognizer\FaceRecognizer\obj\Release\FaceRecognizer.csprojResolveAssemblyReference.cache

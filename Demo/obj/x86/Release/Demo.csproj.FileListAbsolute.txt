@@ -1,0 +1,11 @@
+C:\FaceRecognizer\Demo\bin\Debug\FaceRecognizer.dll
+C:\FaceRecognizer\Demo\bin\Debug\FaceRecognizer.pdb
+C:\FaceRecognizer\Demo\obj\x86\Release\MultiFaceRec.FrmPrincipal.resources
+C:\FaceRecognizer\Demo\bin\Debug\Demo.exe.config
+C:\FaceRecognizer\Demo\bin\Debug\Demo.exe
+C:\FaceRecognizer\Demo\bin\Debug\Demo.pdb
+C:\FaceRecognizer\Demo\obj\x86\Release\Demo.Properties.Resources.resources
+C:\FaceRecognizer\Demo\obj\x86\Release\Demo.exe
+C:\FaceRecognizer\Demo\obj\x86\Release\Demo.pdb
+C:\FaceRecognizer\Demo\obj\x86\Release\Demo.csprojResolveAssemblyReference.cache
+C:\FaceRecognizer\Demo\obj\x86\Release\Demo.csproj.GenerateResource.Cache

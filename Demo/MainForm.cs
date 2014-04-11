@@ -21,6 +21,8 @@ using System.Linq;
 using FaceRecognizer;
 using System.Runtime.InteropServices;
 using System.Configuration;
+using Fleck;
+using Newtonsoft.Json.Linq;
 
 namespace MultiFaceRec
 {
@@ -39,11 +41,15 @@ namespace MultiFaceRec
         private Thread thread = null;
         private Dictionary<string, string> apps = new Dictionary<string, string>();
 
+        private List<IWebSocketConnection> _clients = new List<IWebSocketConnection>();
+
         public FrmPrincipal()
         {
             try
             {
                 InitializeComponent();
+
+                InitializeWebSocketServer();
 
                 enableInputs(false);
                 readApps();
@@ -66,6 +72,35 @@ namespace MultiFaceRec
             {
                 MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
+        }
+
+        private void InitializeWebSocketServer()
+        {
+            var server = new WebSocketServer("ws://localhost:8182");
+
+            server.Start(socket =>
+            {
+                socket.OnOpen = () =>
+                {
+                    Console.WriteLine("Connected to " + socket.ConnectionInfo.ClientIpAddress);
+                    _clients.Add(socket);
+                };
+
+                socket.OnClose = () =>
+                {
+                    Console.WriteLine("Disconnected from " + socket.ConnectionInfo.ClientIpAddress);
+                    _clients.Remove(socket);
+                };
+
+                socket.OnMessage = message =>
+                {
+                    Console.WriteLine(message);
+                };
+            });
+
+            //_serverInitialized = true;
+
+            //Console.ReadLine();
         }
 
         void detector_cleanup()
@@ -203,6 +238,19 @@ namespace MultiFaceRec
                     match = String.Format("Hi, {0}", match);
                 }
                 this.nameLabel.Text = match;
+
+
+
+                foreach (var socket in _clients)
+                {
+                    JObject msg = new JObject();
+                    msg["type"] = "name";
+                    msg["data"] = match;
+                    //msg["image"] = ImageToBase64(ImageToBitmap(pixelData, CFrame.Width, CFrame.Height, CFrame.PixelDataLength), ImageFormat.Jpeg);
+
+                    socket.Send(msg.ToString());
+                }
+
             });
         }
 

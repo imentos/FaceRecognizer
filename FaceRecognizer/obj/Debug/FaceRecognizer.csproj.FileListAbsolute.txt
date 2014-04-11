@@ -1,0 +1,5 @@
+C:\FaceRecognizer\FaceRecognizer\bin\Debug\FaceRecognizer.dll
+C:\FaceRecognizer\FaceRecognizer\bin\Debug\FaceRecognizer.pdb
+C:\FaceRecognizer\FaceRecognizer\obj\Debug\FaceRecognizer.dll
+C:\FaceRecognizer\FaceRecognizer\obj\Debug\FaceRecognizer.pdb
+C:\FaceRecognizer\FaceRecognizer\obj\Debug\FaceRecognizer.csprojResolveAssemblyReference.cache
